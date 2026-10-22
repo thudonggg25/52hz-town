@@ -1,0 +1,34 @@
+{
+  "_ghiChu": "Chép file này thành ~/.game-town/cau-hinh.json (Windows: C:\\Users\\<tên>\\.game-town\\cau-hinh.json). Mọi khoá đều tuỳ chọn.",
+  "cong": 4545,
+  "cachChay": "cli",
+  "claude": "claude",
+  "quyenTraLoi": "default",
+  "giuQuyen": true,
+  "tienToTraLoi": "[Trả lời qua Game Town]",
+  "tomTat": {
+    "lenh": [
+      "claude",
+      "-p",
+      "--model",
+      "haiku"
+    ],
+    "ten": "Haiku"
+  },
+  "duAn": {
+    "ten-thu-muc-repo": {
+      "ten": "Tên hiển thị",
+      "bieuTuong": "🏠"
+    }
+  },
+  "banApp": {
+    "Claude-khac": "02"
+  },
+  "gioiHan": {
+    "h5": 20,
+    "d7": 150
+  },
+  "quota": null,
+  "giaoDien": null,
+  "gia": []
+}

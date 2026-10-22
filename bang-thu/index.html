@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Town · bảng thử</title>
+<style>
+  /* Bảng thử: KHÔNG phải giao diện game. Chỉ để kiểm logic lõi. Hình ảnh thật bạn tự làm riêng. */
+  :root { --bg:#f6f5f2; --card:#fff; --ink:#222; --mut:#777; --line:#e3e0da; --cho:#d94b4b; --lam:#2f7de1; --xem:#d6a21b; --ranh:#3a9e6e; --nghi:#aaa; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; gap:12px; align-items:center; padding:10px 16px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; position:sticky; top:0; z-index:2; }
+  header h1 { font-size:16px; margin:0; }
+  header select { width:auto; }
+  .pill { padding:2px 8px; border-radius:99px; background:#eee; font-size:12px; }
+  .pill.cho { background:var(--cho); color:#fff; }
+  main { display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:12px; padding:12px 16px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; min-width:0; }
+  section h2 { font-size:14px; margin:0 0 8px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .row { display:flex; gap:8px; align-items:center; padding:5px 0; border-top:1px solid var(--line); flex-wrap:wrap; }
+  .row:first-of-type { border-top:0; }
+  .dot { width:10px; height:10px; border-radius:50%; flex:none; }
+  .st-cho{background:var(--cho)} .st-lam{background:var(--lam)} .st-xem{background:var(--xem)} .st-ranh{background:var(--ranh)} .st-nghi{background:var(--nghi)}
+  .grow { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .mut { color:var(--mut); font-size:12px; }
+  button { font:inherit; font-size:12px; padding:3px 9px; border:1px solid var(--line); border-radius:6px; background:#fafafa; cursor:pointer; }
+  button.chinh { background:var(--ink); color:#fff; border-color:var(--ink); }
+  input, textarea, select { font:inherit; padding:5px 7px; border:1px solid var(--line); border-radius:6px; width:100%; }
+  textarea { min-height:60px; }
+  pre { white-space:pre-wrap; word-break:break-word; background:#faf9f6; padding:8px; border-radius:6px; margin:6px 0; max-height:260px; overflow:auto; font-size:12px; }
+  .card { border:1px dashed var(--xem); border-radius:8px; padding:8px; margin:6px 0; background:#fffbea; }
+  .bar { height:6px; background:#eee; border-radius:3px; overflow:hidden; } .bar > i { display:block; height:100%; background:var(--ranh); }
+  #toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#222; color:#fff; padding:8px 14px; border-radius:8px; display:none; gap:10px; align-items:center; z-index:9; }
+  #chiTiet { position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:flex-start; justify-content:center; padding:24px 12px; overflow:auto; z-index:5; }
+  #chiTiet > div { background:var(--card); border-radius:12px; padding:14px; width:min(720px, 100%); }
+  .chat { max-height:360px; overflow:auto; }
+  .msg { padding:4px 0; border-top:1px solid var(--line); } .msg b { font-size:12px; }
+  @media (max-width:600px) { main { padding:8px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="ten">Game Town</h1>
+  <span id="cho" class="pill">0 chờ bạn</span>
+  <span class="mut" id="tienDoLang"></span>
+  <span class="grow"></span>
+  <select id="gio" title="Khung giờ"><option value="1">1 giờ</option><option value="24" selected>24 giờ</option><option value="72">3 ngày</option><option value="336">14 ngày</option></select>
+  <button id="demo">▶ Tự chạy</button>
+</header>
+<main>
+  <section><h2>Dân cư (mọi phiên Claude) <span><input id="tim" placeholder="Tìm (/)" style="width:120px"> <button id="don">🧹 Dọn đã đóng</button></span></h2><div id="danCu"></div></section>
+  <section><h2>Chờ bạn duyệt</h2><div id="duyet"></div><h2 style="margin-top:10px">Bảng việc</h2><div id="bang"></div></section>
+  <section><h2>Tài nguyên (ước tính từ máy này)</h2><div id="taiNguyen"></div></section>
+  <section><h2>Đội trong làng</h2><div id="doi"></div><h2 style="margin-top:10px">Công trình</h2><div id="congTrinh"></div>
+    <details><summary class="mut">Dựng làng từ mô tả dự án</summary><textarea id="moTa" placeholder="Mô tả dự án của bạn: mục tiêu, các phần việc, việc lặp lại…"></textarea><button class="chinh" id="lap">Dựng làng</button></details></section>
+  <section><h2>Phòng Calm <span><button id="calmMoi">Cuộc mới</button> <button id="calmDung">Dừng</button></span></h2><div class="chat" id="chat"></div>
+    <div style="display:flex;gap:6px;margin-top:6px"><input id="calmText" placeholder="Giao việc cho Calm…"><button class="chinh" id="calmGui">Gửi</button></div><div class="mut" id="calmSt"></div></section>
+  <section><h2>Nhật ký</h2><div id="nhatKy"></div></section>
+</main>
+<div id="chiTiet"><div id="ctBody"></div></div>
+<div id="toast"><span id="toastText"></span><button id="toastBtn"></button></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const ago = ms => { if (!ms) return ''; const s = (Date.now() - ms) / 1000; return s < 60 ? 'vừa xong' : s < 3600 ? Math.round(s/60) + ' phút' : s < 86400 ? Math.round(s/3600) + ' giờ' : Math.round(s/86400) + ' ngày'; };
+const TEN = { cho:'Chờ bạn', lam:'Đang làm', xem:'Xong, xem giúp', ranh:'Rảnh', nghi:'Đã đóng' };
+let L = null, D = null, chat = [];
+
+async function act(ten, args = {}) {
+  const r = await fetch('/api/hanh-dong', { method:'POST', headers:{ 'Content-Type':'application/json', 'X-Game-Town':'1' }, body: JSON.stringify({ ten, ...args }) });
+  const j = await r.json();
+  if (j && j.ok === false) toast(j.error || 'Lỗi');
+  return j;
+}
+function toast(text, btn) {
+  $('#toastText').textContent = text; $('#toast').style.display = 'flex';
+  $('#toastBtn').style.display = btn ? '' : 'none';
+  if (btn) { $('#toastBtn').textContent = btn.label; $('#toastBtn').onclick = () => { $('#toast').style.display = 'none'; btn.run(); }; }
+  clearTimeout(toast.t); toast.t = setTimeout(() => $('#toast').style.display = 'none', btn ? 12000 : 3500);
+}
+
+function renderDanCu() {
+  if (!D) return;
+  const q = $('#tim').value.toLowerCase();
+  $('#danCu').innerHTML = D.projects.map(p => {
+    const rows = p.sessions.filter(s => !s.mark && (!q || (s.title + p.name).toLowerCase().includes(q)));
+    if (!rows.length) return '';
+    return `<div class="mut" style="margin-top:6px">📁 ${esc(p.name)}</div>` + rows.map(s => `<div class="row" data-sid="${s.id}">
+      <span class="dot st-${s.status}" title="${TEN[s.status]}"></span>
+      <span class="grow"><b>${esc(s.title)}</b><br><span class="mut">${esc(s.status === 'lam' ? s.activity : (s.needs || TEN[s.status]))}${s.subActive ? ` · ${s.subActive} subagent` : ''}${s.branch ? ' · ⎇ ' + esc(s.branch) : ''} · ${ago(s.lastActivityAt)}</span></span>
+      <span class="mut">${s.usage && s.usage.total != null ? '$' + s.usage.total.toFixed(2) : ''}${s.usage && s.usage.ctxPct != null ? ' · 🧠' + s.usage.ctxPct + '%' : ''}</span>
+      <button data-xong="${s.id}">✓</button></div>`).join('');
+  }).join('') || '<div class="mut">Chưa thấy phiên nào trong khung giờ này.</div>';
+}
+function renderLang() {
+  if (!L) return;
+  $('#ten').textContent = L.title;
+  const w = L.waiting; $('#cho').textContent = w + ' chờ bạn'; $('#cho').className = 'pill' + (w ? ' cho' : '');
+  document.title = (w ? `(${w}) ` : '') + 'Game Town';
+  $('#tienDoLang').textContent = L.tienDo.buildings.length ? `Tiến độ làng ${L.tienDo.pct}%` : '';
+  $('#demo').textContent = L.demo ? '■ Dừng tự chạy' : '▶ Tự chạy';
+  const now = Date.now();
+  $('#duyet').innerHTML = [...L.approvals.map(q => `<div class="row"><span class="dot st-cho"></span><span class="grow">🙋 <b>${esc(q.agent)}</b> xin quyền: ${esc(q.summary)}<br><span class="mut">còn ${Math.max(0, Math.round((q.expiresAt - now)/1000))} giây rồi chuyển về cửa sổ Claude</span></span><button class="chinh" data-quyet="${q.id}" data-v="1">Cho phép</button><button data-quyet="${q.id}" data-v="0">Từ chối</button></div>`),
+    ...L.board.filter(t => t.status === 'waiting_approval').map(t => `<div class="row"><span class="dot st-cho"></span><span class="grow"><b>${t.id}</b> ${esc(t.title)}${t.gate ? ` <span class="pill">${esc(t.gate)}</span>` : ''}<br><span class="mut">${esc(t.question || t.note || '')}</span>${t.card && t.card.options.length ? t.card.options.map(o => `<button data-tl="${t.id}" data-text="${esc(o.label)}">${o.recommended ? '★ ' : ''}${esc(o.label)}</button>`).join(' ') : ''}</span>
+      ${t.question ? `<button data-tl="${t.id}">Trả lời</button>` : `<button class="chinh" data-quyet="${t.id}" data-v="1">Duyệt</button><button data-quyet="${t.id}" data-v="0">Từ chối</button>`}</div>`)].join('') || '<div class="mut">Không có gì chờ bạn.</div>';
+  $('#bang').innerHTML = L.board.slice(-12).reverse().map(t => `<div class="row"><span class="grow"><b>${t.id}</b> ${esc(t.title)}</span><span class="pill">${esc(t.status)}</span></div>`).join('') || '<div class="mut">Trống.</div>';
+  $('#doi').innerHTML = L.agents.map(a => `<div class="row"><span class="dot" style="background:${esc(a.color)}"></span><span class="grow"><b>${esc(a.name)}</b> <span class="mut">${esc(a.state)}${a.at !== a.home ? ' · đang ở ' + esc(a.at) : ''}</span><br>${esc(a.bubble)}</span></div>`).join('');
+  $('#congTrinh').innerHTML = L.tienDo.buildings.map(b => {
+    const plan = (L.buildings || []).find(x => x.id === b.id) || { tasks: [] };
+    return `<div class="row"><span class="grow"><b>${esc(b.name)}</b> <span class="mut">${b.done}/${b.total}${b.running ? ' · đang làm ' + esc(b.running) : ''}</span><div class="bar"><i style="width:${b.pct}%"></i></div>
+      ${plan.tasks.map(t => `<div class="mut">${{ chua:'○', lam:'◐', cho:'❗', xong:'●', loi:'✗' }[t.status] || '○'} ${esc(t.title)} ${t.status !== 'lam' && !b.running ? `<button data-giao="${b.id}" data-task="${t.id}">Làm</button>` : ''}</div>`).join('')}</span></div>`;
+  }).join('') || '<div class="mut">Chưa dựng làng từ mô tả dự án.</div>';
+  $('#nhatKy').innerHTML = L.log.slice(-25).reverse().map(e => `<div class="row"><span class="mut">${new Date(e.ts).toLocaleTimeString('vi')}</span><span class="grow"><b>${esc(e.agent)}</b> ${esc(e.text)}</span></div>`).join('');
+  $('#calmSt').textContent = L.calm.running ? `Calm đang làm…${L.calm.queue ? ` (${L.calm.queue} tin chờ)` : ''}` : `Cách chạy: ${L.calm.cachChay}${L.calm.dir ? ' · ' + L.calm.dir : ''}`;
+}
+function renderChat() {
+  $('#chat').innerHTML = chat.slice(-60).map(m => `<div class="msg"><b>${esc({ 'nguoi-dung':'Bạn', calm:'Calm', step:'🔧', system:'⚙', end:'—' }[m.role] || m.role)}</b> ${m.role === 'step' ? esc(m.text) : `<pre>${esc(m.text)}</pre>`}
+    ${m.card ? `<div class="card">${m.card.progress != null ? `<div class="bar"><i style="width:${m.card.progress}%"></i></div>` : ''}${esc(m.card.summary)}${m.card.question ? `<br><b>${esc(m.card.question)}</b><br>` + m.card.options.map(o => `<button data-chon="${esc(o.label)}" title="${esc(o.description)}">${o.recommended ? '★ ' : ''}${esc(o.label)}</button>`).join(' ') : ''}</div>` : ''}</div>`).join('');
+  $('#chat').scrollTop = 1e9;
+}
+async function renderTaiNguyen() {
+  const r = await (await fetch('/api/tai-nguyen')).json();
+  const e = r.estimated, g = r.gioiHan || {};
+  const line = (ten, w, lim) => `<div class="row"><span class="grow"><b>${ten}</b>: $${w.cost.toFixed(2)}${lim ? ` / $${lim}` : ''} · ${w.calls} lượt gọi${w.resetAt ? ` · nhẹ bớt lúc ${new Date(w.resetAt).toLocaleTimeString('vi', { hour:'2-digit', minute:'2-digit' })}` : ''}${lim ? `<div class="bar"><i style="width:${Math.min(100, w.cost / lim * 100)}%"></i></div>` : ''}</span></div>`;
+  $('#taiNguyen').innerHTML = line('Vòng 5 giờ', e.h5, g.h5) + line('7 ngày', e.d7, g.d7) +
+    Object.entries(e.byModel).map(([m, v]) => `<div class="mut">${esc(m)}: $${v.cost.toFixed(2)} (${v.calls})</div>`).join('') +
+    (r.external ? `<pre>${esc(JSON.stringify(r.external, null, 1))}</pre>` : '<div class="mut">Tiền quy đổi theo giá API; gói đăng ký không trả theo token.</div>');
+}
+
+async function moChiTiet(id) {
+  const d = await (await fetch('/api/phien/' + id)).json();
+  const u = d.usage || {};
+  $('#ctBody').innerHTML = `<h2 style="margin:0 0 6px">${esc(d.title)}</h2>
+    <div class="mut">${TEN[d.status]} · ${esc(d.project)}${d.branch ? ' · ⎇ ' + esc(d.branch) : ''} · ${d.source === 'app' ? 'app desktop' : 'CLI'}${d.live ? ' · đang mở' : ''}</div>
+    <div class="mut">💰 $${(u.total || 0).toFixed(3)} (subagent $${(u.subCost || 0).toFixed(3)}) · 🧠 ${u.ctxPct ?? '?'}% ngữ cảnh${u.cache ? ` · ⏱ cache ấm còn ${Math.max(0, Math.round((u.cache.start + u.cache.ttl * 1000 - Date.now()) / 60000))} phút` : ''}</div>
+    ${d.ask ? `<div class="card"><b>${esc(d.ask.question || d.ask.summary)}</b><br>${d.ask.options.map(o => `<button data-tlp="${esc(o.label)}" title="${esc(o.description)}">${o.recommended ? '★ ' : ''}${esc(o.label)}</button>`).join(' ')}</div>` : ''}
+    ${d.aiSummary ? `<div class="card">${esc(d.aiSummary.summary || d.aiSummary.error)}</div>` : ''}
+    <pre>${esc(d.lastText || '(chưa có lời nào)')}</pre>
+    <details><summary class="mut">Dòng thời gian</summary>${(d.timeline || []).map(t => `<div class="mut">${t.kind === 'tool' ? '🔧' : t.kind === 'user' ? '🙋' : '💬'} ${esc(t.text)}</div>`).join('')}</details>
+    <textarea id="ctText" placeholder="Trả lời phiên này…"></textarea>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="chinh" id="ctGui">Gửi</button><button id="ctMo">Mở phiên</button><button id="ctBG">📋 Bàn giao</button><button id="ctTT">Tóm tắt</button><button id="ctCP">🗜 Compact</button><button id="ctAn">🙈 Ẩn</button><button id="ctDong">Đóng</button></div>
+    ${d.reply ? `<div class="mut">Lần trả lời trước: ${esc(d.reply.state)} (${esc(d.reply.via)}) ${esc(d.reply.error || '')}</div>` : ''}`;
+  $('#chiTiet').style.display = 'flex';
+  const gui = async text => { const r = await act('phien.tra-loi', { id, text }); if (r.ok) { toast('Đã gửi'); $('#chiTiet').style.display = 'none'; } };
+  $('#ctGui').onclick = () => gui($('#ctText').value);
+  document.querySelectorAll('[data-tlp]').forEach(b => b.onclick = () => gui('Mình chọn: ' + b.dataset.tlp));
+  $('#ctMo').onclick = () => act('phien.mo', { id });
+  $('#ctBG').onclick = async () => { const r = await act('phien.ban-giao', { id }); if (r.ok) { await navigator.clipboard.writeText(r.markdown).catch(() => {}); toast('Đã chép bản bàn giao'); } };
+  $('#ctTT').onclick = async () => { toast('Đang tóm tắt…'); await act('phien.tom-tat', { id }); moChiTiet(id); };
+  $('#ctCP').onclick = async () => { const r = await act('phien.compact', { id }); if (r.ok) toast(r.note || 'Đang compact'); };
+  $('#ctAn').onclick = () => { danhDau([id], 'an'); $('#chiTiet').style.display = 'none'; };
+  $('#ctDong').onclick = () => $('#chiTiet').style.display = 'none';
+}
+async function danhDau(ids, kind) {
+  const r = await act('phien.danh-dau', { ids, kind });
+  if (r.ok) toast(kind === 'an' ? 'Đã ẩn' : 'Đã xếp lên kệ', { label: 'Hoàn tác', run: () => act('phien.hoan-tac', { before: r.before }) });
+}
+
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-sid],[data-xong],[data-quyet],[data-tl],[data-chon],[data-giao]');
+  if (!t) return;
+  if (t.dataset.xong) { e.stopPropagation(); return danhDau([t.dataset.xong], 'xong'); }
+  if (t.dataset.quyet) return act('quyet', { id: t.dataset.quyet, duyet: t.dataset.v === '1' });
+  if (t.dataset.tl) { const text = t.dataset.text || prompt('Trả lời:'); if (text) act('tra-loi-viec', { id: t.dataset.tl, text, chayTiep: true }); return; }
+  if (t.dataset.chon) return act('calm.chon', { label: t.dataset.chon });
+  if (t.dataset.giao) return act('lang.giao', { building: t.dataset.giao, task: t.dataset.task });
+  if (t.dataset.sid) return moChiTiet(t.dataset.sid);
+});
+$('#tim').oninput = renderDanCu;
+document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); $('#tim').focus(); } });
+$('#don').onclick = async () => { const r = await act('phien.don', {}); if (r.ok) toast(`Đã dọn ${r.count} phiên`, { label: 'Hoàn tác', run: () => act('phien.hoan-tac', { before: r.before }) }); };
+$('#demo').onclick = () => act('demo', { bat: !(L && L.demo) });
+$('#calmGui').onclick = () => { const v = $('#calmText').value.trim(); if (v) { act('calm.gui', { text: v }); $('#calmText').value = ''; } };
+$('#calmText').onkeydown = e => { if (e.key === 'Enter') $('#calmGui').click(); };
+$('#calmDung').onclick = () => act('calm.dung');
+$('#calmMoi').onclick = () => act('calm.moi');
+$('#lap').onclick = async () => { toast('Đang dựng làng…'); const r = await act('lang.lap', { moTa: $('#moTa').value }); if (r.ok) toast('Đã dựng làng'); };
+
+let es;
+function connect() {
+  es && es.close();
+  es = new EventSource('/events?gio=' + $('#gio').value);
+  es.addEventListener('lang', e => { L = JSON.parse(e.data); renderLang(); });
+  es.addEventListener('dan-cu', e => { D = JSON.parse(e.data); renderDanCu(); });
+  es.addEventListener('chat', e => { const ev = JSON.parse(e.data); if (ev.type === 'msg') { chat.push(ev.msg); renderChat(); } if (ev.type === 'status' && L) { L.calm = ev.status; renderLang(); } });
+}
+$('#gio').onchange = async () => { D = await (await fetch('/api/dan-cu?gio=' + $('#gio').value)).json(); renderDanCu(); connect(); };
+fetch('/api/chat').then(r => r.json()).then(j => { chat = j.messages; renderChat(); });
+connect();
+renderTaiNguyen(); setInterval(renderTaiNguyen, 30000);
+setInterval(() => L && L.approvals.length && renderLang(), 1000);
+</script>
+</body>
+</html>

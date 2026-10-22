@@ -1,0 +1,20 @@
+{
+  "title": "Game Town",
+  "subtitle": "Làng mẫu: thay bằng làng của bạn (Dựng làng từ mô tả dự án)",
+  "goal": "",
+  "type": "project",
+  "port": 4545,
+  "taskPrefix": "GT",
+  "linearPrefixes": [],
+  "approvalHoldSeconds": 60,
+  "teamDir": "",
+  "calm": { "model": "", "permissionMode": "" },
+  "dispatchPermissionMode": "acceptEdits",
+  "boss": { "id": "calm", "name": "Calm", "role": "Điều phối cả làng: nhận việc, chia việc, báo cáo", "color": "#3fb68b" },
+  "agents": [
+    { "id": "nghien-cuu", "name": "Thư viện", "role": "Tìm hiểu, đọc tài liệu, đề xuất", "color": "#5b8def" },
+    { "id": "xuong", "name": "Xưởng", "role": "Làm sản phẩm: viết code, viết nội dung", "color": "#f2b134" },
+    { "id": "kiem-tra", "name": "Trạm kiểm tra", "role": "Kiểm thử, soát lỗi, gửi bạn duyệt", "color": "#9b6bdf" }
+  ],
+  "buildings": []
+}

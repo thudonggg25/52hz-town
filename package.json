@@ -1,0 +1,15 @@
+{
+  "name": "game-town",
+  "version": "0.1.0",
+  "description": "Lõi Game Town: biến việc làm với Claude thành game quản lý làng. Không cần gói ngoài.",
+  "private": true,
+  "license": "MIT",
+  "main": "core/server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node core/server.js",
+    "thu": "GT_RUNNER=mock node core/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "optionalDependencies": {}
+}
