@@ -24,6 +24,8 @@ function spawnSafe(cmd, args = [], opts = {}) {
   const base = { windowsHide: true, ...opts };
   if (process.platform !== 'win32') return spawn(cmd, args, base);
   const file = resolveWin(cmd);
+  // Windows không chạy thẳng được file .js (lỗi EFTYPE): chạy qua chính Node
+  if (/\.[cm]?js$/i.test(file)) return spawn(process.execPath, [file, ...args], base);
   if (/\.(cmd|bat)$/i.test(file)) {
     const line = [quoteCmd(file), ...args.map(quoteCmd)].join(' ');
     return spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', `"${line}"`], { ...base, windowsVerbatimArguments: true });

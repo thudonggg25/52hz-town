@@ -30,7 +30,7 @@ const P = {
 function ensureDir(d) { fs.mkdirSync(d, { recursive: true }); return d; }
 
 function loadJson(file, fallback = null) {
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; }
+  try { return JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, '')); } catch { return fallback; } // bỏ BOM (Notepad/PowerShell)
 }
 
 // Ghi file tạm rồi đổi tên: không bao giờ để lại file JSON hỏng nửa chừng.

@@ -10,7 +10,7 @@
 //   node .claude/town/board.js ds           Việc đang chờ duyệt / vừa duyệt / bị từ chối.
 //   node .claude/town/board.js ghi "Nội dung" --agent xuong [--bubble "chữ trên đầu"]
 'use strict';
-const BASE = process.env.GAME_TOWN_URL || 'http://localhost:4545';
+const BASE = process.env.GAME_TOWN_URL || 'http://127.0.0.1:4545';
 const args = process.argv.slice(2);
 const cmd = args.shift();
 const opt = n => { const i = args.indexOf('--' + n); return i >= 0 ? args.splice(i, 2)[1] : undefined; };

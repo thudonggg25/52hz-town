@@ -11,7 +11,7 @@ const path = require('path');
 const os = require('os');
 
 const PORT = Number(process.env.PORT || 4545);
-const URL = `http://localhost:${PORT}/hook`;
+const URL = `http://127.0.0.1:${PORT}/hook`;
 const FILE = path.join(process.env.GT_HOME || os.homedir(), '.claude', 'settings.json');
 const EVENTS = ['SessionStart', 'SessionEnd', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse', 'PostToolUseFailure',
   'SubagentStart', 'SubagentStop', 'Notification', 'Stop', 'StopFailure', 'PermissionRequest'];
@@ -19,7 +19,8 @@ const write = process.argv.includes('--ghi') || process.argv.includes('--go');
 const remove = process.argv.includes('--go');
 
 let s = {};
-try { s = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { if (e.code !== 'ENOENT') { console.log('settings.json đang hỏng, không dám sửa: ' + e.message); process.exit(1); } }
+// Bỏ BOM: Notepad cũ và PowerShell hay ghi UTF-8 kèm BOM, JSON.parse sẽ báo hỏng
+try { s = JSON.parse(fs.readFileSync(FILE, 'utf8').replace(/^﻿/, '')); } catch (e) { if (e.code !== 'ENOENT') { console.log('settings.json đang hỏng, không dám sửa: ' + e.message); process.exit(1); } }
 s.hooks = s.hooks || {};
 const isOurs = h => h && h.type === 'http' && String(h.url || '').endsWith(`:${PORT}/hook`);
 const changes = [];

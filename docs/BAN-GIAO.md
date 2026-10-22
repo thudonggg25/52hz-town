@@ -89,3 +89,17 @@ Dành cho người (hoặc phiên Claude) làm tiếp. Đọc cùng `CLAUDE.md`.
 - Thêm cờ `--thu` cho `core/server.js`; `npm run thu` giờ chạy được trên Windows.
 - `npm test`: 19/19 đạt (trên Linux).
 - Chưa làm: chạy thử trên Windows thật (phiên trước chạy trên đám mây nên không với tới máy Hyan).
+
+## 9. Chạy thử trên Windows thật (22/10/2026)
+
+Máy Hyan: Windows 11, Node 24.16, Claude Code 2.1.308 (`claude.exe`).
+
+**Chạy được:** `npm test` 20/20; server `--thu` và thật; trang bảng thử, SSE, WebSocket, Tự chạy; đọc phiên CLI và phiên app desktop (`%APPDATA%\Claude`); `cai-hooks.js` xem/ghi/gỡ (thử trên thư mục nhà giả); `spawnSafe` với chữ có dấu, ngoặc kép, `&`, `%PATH%`; `killTree`.
+
+**Đã sửa:**
+- `spawnSafe` chạy file `.js` qua Node (Windows báo `EFTYPE`, làm hỏng test CLI).
+- Hooks gọi `127.0.0.1` thay `localhost`: trên Windows `localhost` thử IPv6 trước, chậm ~0,2 giây mỗi hook.
+- Đọc JSON bỏ BOM (Notepad/PowerShell ghi kèm BOM, `cai-hooks.js` báo "hỏng").
+- Tên làng: thư mục ẩn (`.codex`), `AppData` không còn thành tên làng; phiên nháp của app gom vào làng "Nháp". Test mới `test/duong-dan.test.js`.
+
+**Chưa thử:** trả lời phiên qua named pipe, `claude --resume` từ lõi, `--ghi` lên `settings.json` thật.

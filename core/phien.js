@@ -250,10 +250,14 @@ function projectOf(cwd) {
   if (m) return { project: m[1], worktree: m[2] };
   m = c.match(/\/worktrees\/([^/]+)\/([^/]+)/);
   if (m) return { project: m[1], worktree: m[2] };
+  // Phiên nháp của app desktop (…/Claude/scratch-workspaces/<mã>/<mã>/scratch-…): gom chung một làng
+  if (/\/scratch-workspaces\//i.test(c)) return { project: 'Nháp', worktree: '' };
   const h = home().replace(/\\/g, '/').replace(/\/$/, '');
   if (c.toLowerCase() === h.toLowerCase()) return { project: '~', worktree: '' };
   if (c.toLowerCase().startsWith(h.toLowerCase() + '/')) {
     const rest = c.slice(h.length + 1).split('/');
+    // Thư mục ẩn (.codex…) hay thư mục hệ thống (AppData, Library) không phải tên dự án: lấy cấp cuối
+    if (rest.length > 1 && (rest[0].startsWith('.') || /^(appdata|library)$/i.test(rest[0]))) return { project: rest[rest.length - 1], worktree: '' };
     // Thư mục "gom" (Documents, Projects…) thì lấy cấp sâu hơn một bậc
     const gom = ['documents', 'projects', 'code', 'src', 'repos', 'dev', 'desktop', 'github'];
     if (rest.length > 1 && gom.includes(rest[0].toLowerCase())) return { project: rest[1], worktree: rest.slice(2).join('/') };
