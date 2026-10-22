@@ -8,7 +8,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node core/server.js",
-    "thu": "GT_RUNNER=mock node core/server.js",
+    "thu": "node core/server.js --thu",
     "test": "node --test test/*.test.js"
   },
   "optionalDependencies": {}

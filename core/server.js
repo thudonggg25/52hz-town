@@ -228,6 +228,8 @@ if (require.main === module) {
   // Lưới cuối: lỗi lạ chỉ ghi nhật ký, không làm sập game
   process.on('unhandledRejection', e => log('unhandledRejection: ' + (e && e.stack || e)));
   process.on('uncaughtException', e => log('uncaughtException: ' + (e && e.stack || e)));
+  // --thu: chế độ thử, chạy được trên cả Windows (npm run thu)
+  if (process.argv.includes('--thu')) process.env.GT_RUNNER = 'mock';
   const portArg = process.argv.indexOf('--port');
   const s = createServer({ port: portArg > 0 ? process.argv[portArg + 1] : undefined });
   s.server.on('error', e => {
