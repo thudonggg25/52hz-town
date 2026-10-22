@@ -71,3 +71,21 @@ Dành cho người (hoặc phiên Claude) làm tiếp. Đọc cùng `CLAUDE.md`.
 - Server chỉ nghe 127.0.0.1, kiểm Host/Origin, lệnh ghi cần `X-Game-Town: 1`. Đừng nới lỏng.
 - Chạy `npm test` trước mỗi commit.
 - Hỏi Hyan trước khi đẩy lên GitHub và trước mọi việc không hoàn tác được (đăng, gửi, xoá).
+
+## 7. Bắt đầu ở acc mới
+
+**Lấy mã:**
+- Repo công khai: https://github.com/thudonggg25/52hz-town
+- Bản mới nhất nằm ở nhánh `claude/relaxed-hypatia-r4vi6q` (chưa gộp vào `main`).
+- Hoặc dùng file zip Hyan mang theo, giải nén ra một thư mục.
+
+**Câu mở đầu dán cho Claude ở acc mới** (nên chạy trên máy Windows của Hyan, không chạy trên đám mây):
+
+> Đọc `CLAUDE.md` và `docs/BAN-GIAO.md` trước. Đây là lõi logic Game Town, mình (Hyan) tự làm phần hình. Chạy `npm test`, rồi làm mục 5.1: chạy thử trên Windows, sửa lỗi gặp được. Trả lời tiếng Việt, câu ngắn. Hỏi mình trước khi đẩy lên GitHub.
+
+## 8. Nhật ký phiên trước (22/10/2026)
+
+- Thêm file này.
+- Thêm cờ `--thu` cho `core/server.js`; `npm run thu` giờ chạy được trên Windows.
+- `npm test`: 19/19 đạt (trên Linux).
+- Chưa làm: chạy thử trên Windows thật (phiên trước chạy trên đám mây nên không với tới máy Hyan).
